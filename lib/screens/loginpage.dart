@@ -89,7 +89,7 @@ class _LoginState extends State<Login> {
                       children: [
                         // "Your name" label and input field
                         const Text(
-                          'Your name',
+                          'User Name',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -105,7 +105,7 @@ class _LoginState extends State<Login> {
                               child: TextField(
                                 controller: username,
                                 decoration: const InputDecoration(
-                                  hintText: 'your name here',
+                                  hintText: 'user name here',
                                   border: InputBorder.none,
                                   hintStyle:
                                       TextStyle(color: Color(0xFFB8B8D2)),

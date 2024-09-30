@@ -237,7 +237,9 @@ class MyDrawer extends StatelessWidget {
               padding: EdgeInsets.zero,
               children: [
                 // Header for the drawer with profile information
-
+                SizedBox(
+                  height: 20,
+                ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
