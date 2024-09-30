@@ -9,21 +9,34 @@ class AddressNotifier extends StateNotifier<AddressState> {
 
   // Method to fetch suggestions from Nominatim API
   Future<void> fetchAddressSuggestions(String input) async {
-    print('adress : $input');
+    print('Address input: $input');
+
     if (input.isEmpty) return;
+
+    // Base URL for the Nominatim API
     const String baseUrl = 'https://nominatim.openstreetmap.org/search';
-    final Uri url =
-        Uri.parse('$baseUrl?q=$input&format=json&addressdetails=1&limit=5');
+
+    // Build the full URL with query input and country restriction to India
+    final url = Uri.parse(
+        '$baseUrl?q=$input&countrycodes=in&format=json&addressdetails=1');
 
     try {
+      // Make the GET request to Nominatim API
       final http.Response response = await http.get(url);
+
+      // Check if the request was successful
       if (response.statusCode == 200) {
+        // Parse the response body
         final List<dynamic> suggestions = json.decode(response.body);
+
+        // Update the state with the fetched suggestions
         state = state.copyWith(suggestions: suggestions);
       } else {
+        // Throw an exception if the status code is not 200
         throw Exception('Failed to load suggestions');
       }
     } catch (e) {
+      // Print error message if any exception occurs
       print('Error fetching suggestions: $e');
     }
   }
