@@ -70,7 +70,6 @@ class TopSection extends StatelessWidget {
           child: GestureDetector(
             onTap: () {
               // Open the drawer using the scaffold key
-              scaffoldKey.currentState?.openEndDrawer();
             },
             child: Stack(
               alignment: Alignment.center,
@@ -122,6 +121,98 @@ class TopSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class MyDrawer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          // Header for the drawer with profile information
+          UserAccountsDrawerHeader(
+            decoration: BoxDecoration(
+              color: Color(0xFFF8F8FA), // Background color of the drawer header
+            ),
+            accountName: Text(
+              "Janet Anderson",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            accountEmail: Text(
+              "123 points",
+              style: TextStyle(
+                color: Colors.black54,
+              ),
+            ),
+            currentAccountPicture: CircleAvatar(
+              backgroundImage: AssetImage(
+                  'assets/profile_image.jpg'), // Add your asset image path here
+              radius: 50.0,
+            ),
+          ),
+
+          // List of drawer items
+          _buildDrawerItem(
+            icon: Icons.person_outline,
+            text: 'Profile',
+            onTap: () {},
+          ),
+          _buildDrawerItem(
+            icon: Icons.card_giftcard_outlined,
+            text: 'Promotion',
+            onTap: () {},
+          ),
+          _buildDrawerItem(
+            icon: Icons.settings_outlined,
+            text: 'Setting',
+            onTap: () {},
+          ),
+          _buildDrawerItem(
+            icon: Icons.support_agent_outlined,
+            text: 'Support',
+            onTap: () {},
+          ),
+          _buildDrawerItem(
+            icon: Icons.policy_outlined,
+            text: 'Policy',
+            onTap: () {},
+          ),
+          _buildDrawerItem(
+            icon: Icons.logout_outlined,
+            text: 'Log out',
+            onTap: () {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper function to create a drawer item
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String text,
+    GestureTapCallback? onTap,
+  }) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: Color(0xFF6D6BE7),
+      ),
+      title: Text(
+        text,
+        style: TextStyle(
+          color: Colors.black87,
+          fontSize: 16,
+        ),
+      ),
+      onTap: onTap,
     );
   }
 }

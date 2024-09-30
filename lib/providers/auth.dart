@@ -42,6 +42,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   //     useRole: extractData['use_role'],
   //   );
 
+  Future<void> logout() async {
+    final pref = await SharedPreferences.getInstance();
+    await pref.clear();
+    state = AuthState.initial();
+  }
+
 // php try auto login
 
   Future<bool> tryAutoLogin() async {
