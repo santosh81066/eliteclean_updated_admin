@@ -83,7 +83,7 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
     });
   }
 
-  // Validate all form fields
+  // Validate all form fields args
   _validateAndSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
       // If all validations pass, proceed with the form submission
