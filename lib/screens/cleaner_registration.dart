@@ -84,11 +84,22 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
   }
 
   // Validate all form fields
-  void _validateAndSubmit() {
+  _validateAndSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
       // If all validations pass, proceed with the form submission
       print('Form is valid, proceeding with submission...');
-      Navigator.pushNamed(context, '/userprofile');
+
+      // Prepare the arguments
+      final registrationData = {
+        'mobileNumber': mobileno.text,
+        'country': _countryController.text,
+        'state': _stateController.text,
+        'city': _cityController.text,
+        'address': _addressController.text,
+        'radius': radius.text,
+      };
+
+      Navigator.pushNamed(context, '/userprofile', arguments: registrationData);
     } else {
       print('Form is not valid, fix the errors.');
     }
