@@ -209,9 +209,7 @@ class _UserProfileState extends State<UserProfile> {
                 width:
                     screenWidth * 0.80, // Button width at 80% of screen width
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/paymentinfo');
-                  },
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(
                         vertical: screenHeight * 0.02), // Responsive padding

@@ -15,6 +15,12 @@ class CleanerRegistration extends ConsumerStatefulWidget {
 
 class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
   late TextEditingController _addressController;
+  TextEditingController _countryController =
+      TextEditingController(text: 'India'); // Set default country
+  late TextEditingController _stateController;
+  late TextEditingController _cityController;
+  TextEditingController radius = TextEditingController();
+  TextEditingController mobileno = TextEditingController();
   late ScrollController _scrollController;
   Timer? _debounce;
 
@@ -24,13 +30,29 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
   void initState() {
     super.initState();
     _addressController = TextEditingController();
+    _countryController =
+        TextEditingController(text: 'India'); // Set default country
+    _stateController = TextEditingController();
+    _cityController = TextEditingController();
     _scrollController = ScrollController();
+
+    // Fetch countries when initializing the form
+    ref.read(addressProvider.notifier).loadJsonData().then((_) {
+      ref
+          .read(addressProvider.notifier)
+          .filterStates(); // Filter for Indian states
+    });
   }
 
   @override
   void dispose() {
     _addressController.dispose();
+    _countryController.dispose();
+    _stateController.dispose();
+    _cityController.dispose();
     _scrollController.dispose();
+    mobileno.dispose();
+    radius.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -122,8 +144,8 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
                   ),
                   const SizedBox(height: 32),
                   Container(
-                    padding: const EdgeInsets.all(24),
-                    margin: const EdgeInsets.symmetric(horizontal: 32),
+                    padding: const EdgeInsets.all(30),
+                    margin: const EdgeInsets.symmetric(horizontal: 40),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(25),
@@ -133,52 +155,26 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildTextFormField(
-                          label: 'Username',
-                          hintText: 'Enter your username',
+                          controller: mobileno,
+                          label: 'Mobile number',
+                          hintText: 'Enter your Mobile no',
                           icon: Icons.person,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your username';
+                              return 'Please enter your Mobile no';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 20),
                         _buildTextFormField(
-                          label: 'Country name',
-                          hintText: 'your country name here',
-                          icon: Icons.language,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your country name';
-                            }
-                            return null;
-                          },
-                        ),
+                            label: 'Country',
+                            controller: _countryController,
+                            readonly: true),
                         const SizedBox(height: 20),
-                        _buildTextFormField(
-                          label: 'State',
-                          hintText: 'your state here',
-                          icon: Icons.map,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your state';
-                            }
-                            return null;
-                          },
-                        ),
+                        _buildStateDropdown(addressNotifier, addressState),
                         const SizedBox(height: 20),
-                        _buildTextFormField(
-                          label: 'City',
-                          hintText: 'your city here',
-                          icon: Icons.location_city,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your city';
-                            }
-                            return null;
-                          },
-                        ),
+                        _buildCityDropdown(addressNotifier, addressState),
                         const SizedBox(height: 20),
                         _buildAddressField(
                           addressController: _addressController,
@@ -192,6 +188,16 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
                           },
                         ),
                         const SizedBox(height: 5),
+                        _buildTextFormField(
+                            controller: radius,
+                            label: 'radius',
+                            hintText: 'Enter radius',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please Enter radius';
+                              }
+                              return null;
+                            })
                       ],
                     ),
                   ),
@@ -224,13 +230,67 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
     );
   }
 
-  Widget _buildTextFormField({
-    required String label,
-    required String hintText,
-    required IconData icon,
-    required String? Function(String?)
-        validator, // Validator function for field validation
-  }) {
+  Widget _buildStateDropdown(
+      AddressNotifier addressNotifier, AddressState addressState) {
+    return Row(
+      children: [
+        Icon(Icons.map, color: const Color(0xFFB8B8D2)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: DropdownButtonFormField<String>(
+            decoration: const InputDecoration(labelText: 'State'),
+            value: addressState.selectedState,
+            items: addressState.states
+                .map((state) => DropdownMenuItem(
+                      value: state,
+                      child: Text(state),
+                    ))
+                .toList(),
+            onChanged: (value) {
+              if (value != null) {
+                addressNotifier.filterCities(value);
+                _stateController.text = value;
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCityDropdown(
+      AddressNotifier addressNotifier, AddressState addressState) {
+    return Row(
+      children: [
+        Icon(Icons.location_city, color: const Color(0xFFB8B8D2)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: DropdownButtonFormField<String>(
+            decoration: const InputDecoration(labelText: 'City'),
+            value: addressState.selectedCity,
+            items: addressState.cities
+                .map((city) => DropdownMenuItem(
+                      value: city,
+                      child: Text(city),
+                    ))
+                .toList(),
+            onChanged: (value) {
+              _cityController.text = value!;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextFormField(
+      {required String label,
+      String? hintText,
+      IconData? icon,
+      bool? readonly,
+      String? Function(String?)?
+          validator, // Validator function for field validation
+      required TextEditingController controller}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -249,6 +309,8 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
             const SizedBox(width: 8),
             Expanded(
               child: TextFormField(
+                controller: controller,
+                readOnly: readonly ?? false,
                 keyboardType: TextInputType.text,
                 validator: validator, // Validation logic
                 decoration: InputDecoration(
@@ -331,12 +393,11 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
               itemBuilder: (context, index) {
                 final suggestion = addressState.suggestions[index];
                 return ListTile(
-                  title: Text(suggestion['display_name']),
+                  title: Text(suggestion['description']),
                   onTap: () {
-                    // Fill the text field with the selected address
-                    addressController.text = suggestion['display_name'];
-                    addressNotifier
-                        .clearSuggestions(); // Clear suggestions once selected
+                    addressController.text = suggestion['description'];
+                    addressNotifier.selectAddress(suggestion['place_id']);
+                    addressNotifier.clearSuggestions();
                   },
                 );
               },
