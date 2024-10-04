@@ -126,7 +126,7 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
           'status': status,
         });
       } else {
-        // Handle registration failure, show error message
+        // Handle registation failure, show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content:
