@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../models/addressstate.dart';
 import '../providers/addressnotifier.dart';
+import '../providers/auth.dart';
 
 enum UserStatus { active, deactive }
 
@@ -85,22 +86,54 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
   }
 
   // Validate and submit the form
-  _validateAndSubmit() {
+  // Inside your CleanerRegistration widget's _validateAndSubmit method
+
+  void _validateAndSubmit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      print('Form is valid, proceeding with submission...');
+      print('Form is valid, proceeding with registration...');
 
-      // Prepare the arguments including user status
-      final registrationData = {
-        'mobileNumber': mobileno.text,
-        'country': _countryController.text,
-        'state': _stateController.text,
-        'city': _cityController.text,
-        'address': _addressController.text,
-        'radius': radius.text,
-        'status': _userStatus == UserStatus.active ? 'active' : 'deactive',
-      };
+      // Collect all form fields
+      final mobileNumber = mobileno.text;
+      final country = _countryController.text;
+      final stateName = _stateController.text;
+      final city = _cityController.text;
+      final address = _addressController.text;
+      final radiusValue = radius.text;
+      final status = _userStatus == UserStatus.active ? 'active' : 'deactive';
 
-      Navigator.pushNamed(context, '/userprofile', arguments: registrationData);
+      // Call the register function
+      await ref.read(authProvider.notifier).register(
+            ref,
+            mobileNumber: mobileNumber,
+            country: country,
+            stateName: stateName,
+            city: city,
+            address: address,
+            radius: radiusValue,
+            status: status,
+            // Add other fields as needed
+          );
+
+      // Optionally, navigate to the user profile or show a success message
+      if (ref.read(authProvider).data != null) {
+        Navigator.pushNamed(context, '/userprofile', arguments: {
+          'mobileNumber': mobileNumber,
+          'country': country,
+          'state': stateName,
+          'city': city,
+          'address': address,
+          'radius': radiusValue,
+          'status': status,
+        });
+      } else {
+        // Handle registration failure, show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text(ref.read(authProvider).messages ?? 'Registration failed.'),
+          ),
+        );
+      }
     } else {
       print('Form is not valid, fix the errors.');
     }
@@ -108,6 +141,8 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
     final addressState = ref.watch(addressProvider);
     final addressNotifier = ref.read(addressProvider.notifier);
 
@@ -129,114 +164,118 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
           child: Center(
             child: Form(
               key: _formKey, // Form key to validate the form fields
-              child: Column(
-                children: [
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-                  SvgPicture.asset(
-                    'assets/images/logo-icon.svg',
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Registration',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E116B),
+              child: Container(
+                child: Column(
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+                    SvgPicture.asset(
+                      'assets/images/logo-icon.svg',
+                      fit: BoxFit.contain,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 40),
-                    child: Text(
-                      'Please enter your details to sign up and create an account.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 14, color: Color(0xFF77779D)),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  Container(
-                    padding: const EdgeInsets.all(30),
-                    margin: const EdgeInsets.symmetric(horizontal: 40),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(25),
-                      border: Border.all(color: const Color(0xFFEAE9FF)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildTextFormField(
-                          controller: mobileno,
-                          label: 'Mobile number',
-                          hintText: 'Enter your Mobile no',
-                          icon: Icons.person,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your Mobile no';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        _buildTextFormField(
-                            label: 'Country',
-                            controller: _countryController,
-                            readonly: true),
-                        const SizedBox(height: 20),
-                        _buildStateDropdown(addressNotifier, addressState),
-                        const SizedBox(height: 20),
-                        _buildCityDropdown(addressNotifier, addressState),
-                        const SizedBox(height: 20),
-                        _buildAddressField(
-                          addressController: _addressController,
-                          addressNotifier: addressNotifier,
-                          addressState: addressState,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your address';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 5),
-                        _buildTextFormField(
-                          controller: radius,
-                          label: 'radius',
-                          hintText: 'Enter radius',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please Enter radius';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        _buildStatusRadioButtons(), // Radio buttons for status
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: 320,
-                    child: ElevatedButton(
-                      onPressed:
-                          _validateAndSubmit, // Validate and submit the form
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: const Color(0xFF583EF2),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text(
-                        'Next',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Registration',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1E116B),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                ],
+                    const SizedBox(height: 8),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 40),
+                      child: Text(
+                        'Please enter your details to sign up and create an account.',
+                        textAlign: TextAlign.center,
+                        style:
+                            TextStyle(fontSize: 14, color: Color(0xFF77779D)),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Container(
+                      padding: const EdgeInsets.all(30),
+                      margin: const EdgeInsets.symmetric(horizontal: 40),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(color: const Color(0xFFEAE9FF)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildTextFormFieldNum(
+                            controller: mobileno,
+                            label: 'Mobile number',
+                            hintText: 'Enter your Mobile no',
+                            icon: Icons.person,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your Mobile no';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          _buildTextFormField(
+                              label: 'Country',
+                              controller: _countryController,
+                              readonly: true),
+                          const SizedBox(height: 20),
+                          _buildStateDropdown(addressNotifier, addressState),
+                          const SizedBox(height: 20),
+                          _buildCityDropdown(addressNotifier, addressState),
+                          const SizedBox(height: 20),
+                          _buildAddressField(
+                            addressController: _addressController,
+                            addressNotifier: addressNotifier,
+                            addressState: addressState,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your address';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 5),
+                          _buildTextFormField(
+                            controller: radius,
+                            label: 'radius',
+                            hintText: 'Enter radius',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please Enter radius';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          _buildStatusRadioButtons(), // Radio buttons for status
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    //elevated button
+                    SizedBox(
+                      width: 320,
+                      child: ElevatedButton(
+                        onPressed:
+                            _validateAndSubmit, // Validate and submit the form
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: const Color(0xFF583EF2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text(
+                          'Next',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
               ),
             ),
           ),
@@ -328,6 +367,52 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
                 controller: controller,
                 readOnly: readonly ?? false,
                 keyboardType: TextInputType.text,
+                validator: validator, // Validation logic
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  border: InputBorder.none,
+                  hintStyle: const TextStyle(color: Color(0xFFB8B8D2)),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const Divider(),
+      ],
+    );
+  }
+
+  //text form field for number
+  Widget _buildTextFormFieldNum({
+    required String label,
+    String? hintText,
+    IconData? icon,
+    bool? readonly,
+    String? Function(String?)?
+        validator, // Validator function for field validation
+    required TextEditingController controller,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1F1F39),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Icon(icon, color: const Color(0xFFB8B8D2)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextFormField(
+                controller: controller,
+                readOnly: readonly ?? false,
+                keyboardType: TextInputType.phone,
                 validator: validator, // Validation logic
                 decoration: InputDecoration(
                   hintText: hintText,
@@ -436,36 +521,31 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
             color: Color(0xFF1F1F39),
           ),
         ),
+        const SizedBox(height: 8),
         Row(
-          mainAxisAlignment:
-              MainAxisAlignment.spaceEvenly, // Add space between radio buttons
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              child: RadioListTile<UserStatus>(
-                title: const Text('Active'),
-                value: UserStatus.active,
-                groupValue: _userStatus,
-                onChanged: (UserStatus? value) {
-                  setState(() {
-                    _userStatus = value!;
-                  });
-                },
-                dense: true, // Makes the radio buttons take less vertical space
-              ),
+            Radio<UserStatus>(
+              value: UserStatus.active,
+              groupValue: _userStatus,
+              onChanged: (UserStatus? value) {
+                setState(() {
+                  _userStatus = value!;
+                });
+              },
             ),
-            Expanded(
-              child: RadioListTile<UserStatus>(
-                title: const Text('Deactive'),
-                value: UserStatus.deactive,
-                groupValue: _userStatus,
-                onChanged: (UserStatus? value) {
-                  setState(() {
-                    _userStatus = value!;
-                  });
-                },
-                dense: true, // Makes the radio buttons take less vertical space
-              ),
+            const Text('Active'),
+            // const SizedBox(width: 20),
+            Radio<UserStatus>(
+              value: UserStatus.deactive,
+              groupValue: _userStatus,
+              onChanged: (UserStatus? value) {
+                setState(() {
+                  _userStatus = value!;
+                });
+              },
             ),
+            const Text('Deactive'),
           ],
         ),
       ],
