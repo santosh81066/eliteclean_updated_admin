@@ -41,6 +41,16 @@ class _UserProfileState extends State<UserProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic> registrationData =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final String mobileNumber = registrationData['mobileNumber'];
+    final String country = registrationData['country'];
+    final String state = registrationData['state'];
+    final String city = registrationData['city'];
+    final String address = registrationData['address'];
+    final String radius = registrationData['radius'];
+    final String status = registrationData['status'];
+
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
     final double paddingHorizontal =
