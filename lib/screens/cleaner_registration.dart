@@ -6,6 +6,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../models/addressstate.dart';
 import '../providers/addressnotifier.dart';
 
+enum UserStatus { active, deactive }
+
 class CleanerRegistration extends ConsumerStatefulWidget {
   const CleanerRegistration({super.key});
 
@@ -21,6 +23,7 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
   late TextEditingController _cityController;
   TextEditingController radius = TextEditingController();
   TextEditingController mobileno = TextEditingController();
+  UserStatus _userStatus = UserStatus.active; // Set default user status
   late ScrollController _scrollController;
   Timer? _debounce;
 
@@ -30,8 +33,6 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
   void initState() {
     super.initState();
     _addressController = TextEditingController();
-    _countryController =
-        TextEditingController(text: 'India'); // Set default country
     _stateController = TextEditingController();
     _cityController = TextEditingController();
     _scrollController = ScrollController();
@@ -75,7 +76,7 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
     _debounce = Timer(const Duration(milliseconds: 500), () {
       if (input.isEmpty) {
         addressNotifier
-            .clearSuggestions(); // Clear suggestions if the input is empty
+            .clearSuggestions(); // Clear suggestions if input is empty
       } else {
         addressNotifier.fetchAddressSuggestions(
             input); // Fetch suggestions if input is not empty
@@ -83,13 +84,12 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
     });
   }
 
-  // Validate all form fields args
+  // Validate and submit the form
   _validateAndSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
-      // If all validations pass, proceed with the form submission
       print('Form is valid, proceeding with submission...');
 
-      // Prepare the arguments
+      // Prepare the arguments including user status
       final registrationData = {
         'mobileNumber': mobileno.text,
         'country': _countryController.text,
@@ -97,6 +97,7 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
         'city': _cityController.text,
         'address': _addressController.text,
         'radius': radius.text,
+        'status': _userStatus == UserStatus.active ? 'active' : 'deactive',
       };
 
       Navigator.pushNamed(context, '/userprofile', arguments: registrationData);
@@ -200,15 +201,18 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
                         ),
                         const SizedBox(height: 5),
                         _buildTextFormField(
-                            controller: radius,
-                            label: 'radius',
-                            hintText: 'Enter radius',
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please Enter radius';
-                              }
-                              return null;
-                            })
+                          controller: radius,
+                          label: 'radius',
+                          hintText: 'Enter radius',
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please Enter radius';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        _buildStatusRadioButtons(), // Radio buttons for status
                       ],
                     ),
                   ),
@@ -294,14 +298,15 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
     );
   }
 
-  Widget _buildTextFormField(
-      {required String label,
-      String? hintText,
-      IconData? icon,
-      bool? readonly,
-      String? Function(String?)?
-          validator, // Validator function for field validation
-      required TextEditingController controller}) {
+  Widget _buildTextFormField({
+    required String label,
+    String? hintText,
+    IconData? icon,
+    bool? readonly,
+    String? Function(String?)?
+        validator, // Validator function for field validation
+    required TextEditingController controller,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -414,6 +419,55 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
               },
             ),
           ),
+      ],
+    );
+  }
+
+  // This method builds the radio buttons for user status selection
+  Widget _buildStatusRadioButtons() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Status',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1F1F39),
+          ),
+        ),
+        Row(
+          mainAxisAlignment:
+              MainAxisAlignment.spaceEvenly, // Add space between radio buttons
+          children: [
+            Expanded(
+              child: RadioListTile<UserStatus>(
+                title: const Text('Active'),
+                value: UserStatus.active,
+                groupValue: _userStatus,
+                onChanged: (UserStatus? value) {
+                  setState(() {
+                    _userStatus = value!;
+                  });
+                },
+                dense: true, // Makes the radio buttons take less vertical space
+              ),
+            ),
+            Expanded(
+              child: RadioListTile<UserStatus>(
+                title: const Text('Deactive'),
+                value: UserStatus.deactive,
+                groupValue: _userStatus,
+                onChanged: (UserStatus? value) {
+                  setState(() {
+                    _userStatus = value!;
+                  });
+                },
+                dense: true, // Makes the radio buttons take less vertical space
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
