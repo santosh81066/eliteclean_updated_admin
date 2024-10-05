@@ -1,8 +1,12 @@
+import 'package:eliteclean_admin/providers/addressnotifier.dart';
+import 'package:eliteclean_admin/providers/loader.dart';
+import 'package:eliteclean_admin/providers/users.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
+import '../providers/imagenotifier.dart';
 import '../providers/navigation_provider.dart';
 import '../widgets/topSectionProfile.dart';
 
@@ -14,8 +18,8 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
-  File? _frontImage;
-  File? _backImage;
+  XFile? _frontImage;
+  XFile? _backImage;
 
   Future<void> _pickFrontImage() async {
     final picker = ImagePicker();
@@ -23,7 +27,7 @@ class _UserProfileState extends State<UserProfile> {
 
     if (pickedFile != null) {
       setState(() {
-        _frontImage = File(pickedFile.path);
+        _frontImage = XFile(pickedFile.path);
       });
     }
   }
@@ -34,7 +38,7 @@ class _UserProfileState extends State<UserProfile> {
 
     if (pickedFile != null) {
       setState(() {
-        _backImage = File(pickedFile.path);
+        _backImage = XFile(pickedFile.path);
       });
     }
   }
@@ -50,6 +54,12 @@ class _UserProfileState extends State<UserProfile> {
     final String address = registrationData['address'];
     final String radius = registrationData['radius'];
     final String status = registrationData['status'];
+    final String role = registrationData['role'];
+
+    // Grab new fields for bank details
+    final String bankAccountNo = registrationData['bankAccountNo'];
+    final String bankName = registrationData['bankName'];
+    final String ifscCode = registrationData['ifscCode'];
 
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
@@ -101,41 +111,48 @@ class _UserProfileState extends State<UserProfile> {
                   SizedBox(
                       height: screenHeight *
                           0.01), // 1% of screen height for spacing
-                  GestureDetector(
-                    onTap: _pickFrontImage,
-                    child: Container(
-                      width:
-                          screenWidth * 0.25, // 25% of screen width for image
-                      height: screenWidth * 0.25, // Maintain square shape
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(screenWidth * 0.01),
-                          topRight: Radius.circular(screenWidth * 0.16),
-                          bottomLeft: Radius.circular(screenWidth * 0.16),
-                          bottomRight: Radius.circular(screenWidth * 0.16),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final imageState = ref.watch(imageProvider);
+                      final imageNotifier = ref.read(imageProvider.notifier);
+                      return GestureDetector(
+                        onTap: imageNotifier.pickFrontImage,
+                        child: Container(
+                          width: screenWidth *
+                              0.25, // 25% of screen width for image
+                          height: screenWidth * 0.25, // Maintain square shape
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(screenWidth * 0.01),
+                              topRight: Radius.circular(screenWidth * 0.16),
+                              bottomLeft: Radius.circular(screenWidth * 0.16),
+                              bottomRight: Radius.circular(screenWidth * 0.16),
+                            ),
+                            color: const Color(0xffffffff),
+                            border: Border.all(
+                              style: BorderStyle.solid,
+                              color: const Color(0xffEAEAFF),
+                              width: 1.5,
+                            ),
+                            image: imageState.frontImage != null
+                                ? DecorationImage(
+                                    image: FileImage(
+                                        File(imageState.frontImage!.path)),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: _frontImage == null
+                              ? Icon(
+                                  Icons.camera_alt_outlined,
+                                  color: Colors.grey,
+                                  size: screenWidth *
+                                      0.1, // Adjust icon size relative to screen width
+                                )
+                              : null,
                         ),
-                        color: const Color(0xffffffff),
-                        border: Border.all(
-                          style: BorderStyle.solid,
-                          color: const Color(0xffEAEAFF),
-                          width: 1.5,
-                        ),
-                        image: _frontImage != null
-                            ? DecorationImage(
-                                image: FileImage(_frontImage!),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
-                      ),
-                      child: _frontImage == null
-                          ? Icon(
-                              Icons.camera_alt_outlined,
-                              color: Colors.grey,
-                              size: screenWidth *
-                                  0.1, // Adjust icon size relative to screen width
-                            )
-                          : null,
-                    ),
+                      );
+                    },
                   ),
                   SizedBox(height: screenHeight * 0.02),
                   const Text(
@@ -148,94 +165,113 @@ class _UserProfileState extends State<UserProfile> {
                     ),
                   ),
                   SizedBox(height: screenHeight * 0.01),
-                  GestureDetector(
-                    onTap: _pickBackImage,
-                    child: Container(
-                      width: screenWidth * 0.25,
-                      height: screenWidth * 0.25,
-                      decoration: BoxDecoration(
-                        color: const Color(0xffffffff),
-                        border: Border.all(
-                          style: BorderStyle.solid,
-                          color: const Color(0xffEAEAFF),
-                          width: 1.5,
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final imageState = ref.watch(imageProvider);
+                      final imageNotifier = ref.read(imageProvider.notifier);
+                      return GestureDetector(
+                        onTap: imageNotifier.pickBackImage,
+                        child: Container(
+                          width: screenWidth * 0.25,
+                          height: screenWidth * 0.25,
+                          decoration: BoxDecoration(
+                            color: const Color(0xffffffff),
+                            border: Border.all(
+                              style: BorderStyle.solid,
+                              color: const Color(0xffEAEAFF),
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(screenWidth * 0.01),
+                              topRight: Radius.circular(screenWidth * 0.16),
+                              bottomLeft: Radius.circular(screenWidth * 0.16),
+                              bottomRight: Radius.circular(screenWidth * 0.16),
+                            ),
+                            image: imageState.backImage != null
+                                ? DecorationImage(
+                                    image: FileImage(
+                                        File(imageState.backImage!.path)),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: _backImage == null
+                              ? Icon(
+                                  Icons.camera_alt_outlined,
+                                  color: Colors.grey,
+                                  size: screenWidth * 0.1, // Adjust icon size
+                                )
+                              : null,
                         ),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(screenWidth * 0.01),
-                          topRight: Radius.circular(screenWidth * 0.16),
-                          bottomLeft: Radius.circular(screenWidth * 0.16),
-                          bottomRight: Radius.circular(screenWidth * 0.16),
-                        ),
-                        image: _backImage != null
-                            ? DecorationImage(
-                                image: FileImage(_backImage!),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
-                      ),
-                      child: _backImage == null
-                          ? Icon(
-                              Icons.camera_alt_outlined,
-                              color: Colors.grey,
-                              size: screenWidth * 0.1, // Adjust icon size
-                            )
-                          : null,
-                    ),
+                      );
+                    },
                   ),
                 ],
               ),
             ),
-            SizedBox(height: screenHeight * 0.01),
-            Consumer(
-              builder: (con, ref, wid) {
-                var navigate = ref.watch(navigationProvider.notifier);
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Radio(
-                      value: 0,
-                      groupValue: ref.watch(navigationProvider),
-                      onChanged: (int? value) {
-                        navigate.navigate(0);
-                      },
-                    ),
-                    const Text('Cleaner'),
-                    Radio(
-                      value: 1,
-                      groupValue: ref.watch(navigationProvider),
-                      onChanged: (int? value) {
-                        navigate.navigate(1);
-                      },
-                    ),
-                    const Text('Supervisor'),
-                  ],
-                );
-              },
-            ),
+
             SizedBox(
                 height: screenHeight * 0.1), // 10% of screen height for spacing
             Center(
               child: SizedBox(
                 width:
                     screenWidth * 0.80, // Button width at 80% of screen width
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
-                        vertical: screenHeight * 0.02), // Responsive padding
-                    backgroundColor: const Color(0xFF583EF2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          screenWidth * 0.04), // Responsive corner radius
-                    ),
-                  ),
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final imageState =
+                        ref.watch(imageProvider); // Listen to image state
+                    var loader = ref.watch(loadingProvider);
+                    var location = ref.read(addressProvider);
+                    return ElevatedButton(
+                      onPressed: loader == true
+                          ? null
+                          : () {
+                              ref.read(usersProvider.notifier).registerUser(
+                                  context: context,
+                                  ref: ref,
+                                  mobileNo: mobileNumber,
+                                  latitude: location.latitude!,
+                                  longitude: location.latitude!,
+                                  city: city,
+                                  state: state,
+                                  countryname: country,
+                                  address: address,
+                                  role: role,
+                                  userstatus: status,
+                                  bankAccountNo: bankAccountNo,
+                                  bankName: bankName,
+                                  ifscCode: ifscCode,
+                                  radius: radius,
+                                  profilePic: imageState.profileImage!,
+                                  idFront: imageState.frontImage!,
+                                  idBack: imageState.backImage!);
+                            },
+                      style: ElevatedButton.styleFrom(
+                        disabledBackgroundColor: const Color(
+                            0xFF583EF2), // Set same color for disabled state
+                        disabledForegroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                            vertical:
+                                screenHeight * 0.02), // Responsive padding
+                        backgroundColor: const Color(0xFF583EF2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              screenWidth * 0.04), // Responsive corner radius
+                        ),
+                      ),
+                      child: loader == true
+                          ? CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                          : const Text(
+                              'Save',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                    );
+                  },
                 ),
               ),
             ),

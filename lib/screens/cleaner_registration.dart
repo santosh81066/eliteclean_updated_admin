@@ -9,6 +9,8 @@ import '../providers/auth.dart';
 
 enum UserStatus { active, deactive }
 
+enum Role { s, c }
+
 class CleanerRegistration extends ConsumerStatefulWidget {
   const CleanerRegistration({super.key});
 
@@ -24,7 +26,11 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
   late TextEditingController _cityController;
   TextEditingController radius = TextEditingController();
   TextEditingController mobileno = TextEditingController();
-  UserStatus _userStatus = UserStatus.active; // Set default user status
+  TextEditingController bankAccountNoController = TextEditingController();
+  TextEditingController bankNameController = TextEditingController();
+  TextEditingController ifscCodeController = TextEditingController();
+  UserStatus _userStatus = UserStatus.active;
+  Role _role = Role.s; // Set default user status
   late ScrollController _scrollController;
   Timer? _debounce;
 
@@ -55,6 +61,9 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
     _scrollController.dispose();
     mobileno.dispose();
     radius.dispose();
+    bankAccountNoController.dispose();
+    bankNameController.dispose();
+    ifscCodeController.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -67,6 +76,12 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+    }
+  }
+
+  void _clearRadiusFieldIfNeeded() {
+    if (_role == Role.c) {
+      radius.clear(); // Clear radius text when switching to Cleaner
     }
   }
 
@@ -86,8 +101,6 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
   }
 
   // Validate and submit the form
-  // Inside your CleanerRegistration widget's _validateAndSubmit method
-
   void _validateAndSubmit() async {
     if (_formKey.currentState?.validate() ?? false) {
       print('Form is valid, proceeding with registration...');
@@ -99,41 +112,25 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
       final city = _cityController.text;
       final address = _addressController.text;
       final radiusValue = radius.text;
-      final status = _userStatus == UserStatus.active ? 'active' : 'deactive';
-
+      final status = _userStatus == UserStatus.active ? '1' : '0';
+      final bankAccountNo = bankAccountNoController.text;
+      final bankName = bankNameController.text;
+      final ifscCode = ifscCodeController.text;
+      final role = _role == Role.s ? 's' : 'c';
       // Call the register function
-      await ref.read(authProvider.notifier).register(
-            ref,
-            mobileNumber: mobileNumber,
-            country: country,
-            stateName: stateName,
-            city: city,
-            address: address,
-            radius: radiusValue,
-            status: status,
-            // Add other fields as needed
-          );
-
-      // Optionally, navigate to the user profile or show a success message
-      if (ref.read(authProvider).data != null) {
-        Navigator.pushNamed(context, '/userprofile', arguments: {
-          'mobileNumber': mobileNumber,
-          'country': country,
-          'state': stateName,
-          'city': city,
-          'address': address,
-          'radius': radiusValue,
-          'status': status,
-        });
-      } else {
-        // Handle registation failure, show error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text(ref.read(authProvider).messages ?? 'Registration failed.'),
-          ),
-        );
-      }
+      Navigator.pushNamed(context, '/userprofile', arguments: {
+        'mobileNumber': mobileNumber,
+        'country': country,
+        'state': stateName,
+        'city': city,
+        'address': address,
+        'radius': radiusValue,
+        'status': status,
+        'bankAccountNo': bankAccountNo,
+        'bankName': bankName,
+        'ifscCode': ifscCode,
+        'role': role
+      });
     } else {
       print('Form is not valid, fix the errors.');
     }
@@ -167,7 +164,7 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
               child: Container(
                 child: Column(
                   children: [
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+                    SizedBox(height: screenHeight * 0.1),
                     SvgPicture.asset(
                       'assets/images/logo-icon.svg',
                       fit: BoxFit.contain,
@@ -237,24 +234,63 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
                             },
                           ),
                           const SizedBox(height: 5),
-                          _buildTextFormField(
-                            controller: radius,
-                            label: 'radius',
-                            hintText: 'Enter radius',
+                          if (_role == Role.s)
+                            _buildTextFormField(
+                              controller: radius,
+                              label: 'Radius',
+                              hintText: 'Enter radius',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter radius';
+                                }
+                                return null;
+                              },
+                            ),
+                          const SizedBox(height: 20),
+                          _buildTextFormFieldNum(
+                            controller: bankAccountNoController,
+                            label: 'Bank Account Number',
+                            hintText: 'Enter Bank Account Number',
+                            icon: Icons.account_balance,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please Enter radius';
+                                return 'Please enter your Bank Account Number';
                               }
                               return null;
                             },
                           ),
                           const SizedBox(height: 20),
-                          _buildStatusRadioButtons(), // Radio buttons for status
+                          _buildTextFormField(
+                            controller: bankNameController,
+                            label: 'Bank Name',
+                            hintText: 'Enter Bank Name',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your Bank Name';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          _buildTextFormField(
+                            controller: ifscCodeController,
+                            label: 'IFSC Code',
+                            hintText: 'Enter IFSC Code',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter IFSC Code';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          _buildStatusRadioButtons(),
+                          const SizedBox(height: 20),
+                          _buildRoleRadioButtons() // Radio buttons for status
                         ],
                       ),
                     ),
                     const SizedBox(height: 20),
-                    //elevated button
                     SizedBox(
                       width: 320,
                       child: ElevatedButton(
@@ -382,7 +418,6 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
     );
   }
 
-  //text form field for number
   Widget _buildTextFormFieldNum({
     required String label,
     String? hintText,
@@ -535,7 +570,6 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
               },
             ),
             const Text('Active'),
-            // const SizedBox(width: 20),
             Radio<UserStatus>(
               value: UserStatus.deactive,
               groupValue: _userStatus,
@@ -546,6 +580,49 @@ class _CleanerRegistrationState extends ConsumerState<CleanerRegistration> {
               },
             ),
             const Text('Deactive'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRoleRadioButtons() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Role',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1F1F39),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Radio<Role>(
+              value: Role.s,
+              groupValue: _role,
+              onChanged: (Role? value) {
+                setState(() {
+                  _role = value!;
+                });
+              },
+            ),
+            const Text('Supervisor'),
+            Radio<Role>(
+              value: Role.c,
+              groupValue: _role,
+              onChanged: (Role? value) {
+                setState(() {
+                  _role = value!;
+                  _clearRadiusFieldIfNeeded();
+                });
+              },
+            ),
+            const Text('Cleaner'),
           ],
         ),
       ],

@@ -155,59 +155,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> registerUser() async {
-    var url = Uri.parse("https://www.gocodecreations.com/register");
-
-    var request = http.MultipartRequest("POST", url);
-
-    // Add text fields
-    request.fields['username'] = 'JohnDoe';
-    request.fields['mobileno'] = '8712705508';
-    request.fields['role'] = 'u';
-    request.fields['userstatus'] = '1';
-    request.fields['password'] = 'securePassword123';
-    request.fields['id_card'] = 'ID123456789';
-    request.fields['banckaccountno'] = '9876543210';
-    request.fields['bankname'] = 'Bank of India';
-    request.fields['ifsccode'] = 'BOI123456';
-    request.fields['radius'] = '10';
-
-    // Add location as a nested JSON object
-    var location = {
-      "latitude": "28.7041",
-      "longitude": "77.1025",
-      "city": "New Delhi",
-      "state": "Delhi",
-      "countryname": "India",
-      "address": "1234 Street Name, Area Name"
-    };
-    request.fields['location'] = jsonEncode(location);
-
-    // Attach file for profilepic, id_front, id_back
-    var profilePicPath =
-        "/path_to_your_profilepic"; // Change to your image path
-    var idFrontPath = "/path_to_your_id_front"; // Change to your image path
-    var idBackPath = "/path_to_your_id_back"; // Change to your image path
-
-    request.files
-        .add(await http.MultipartFile.fromPath('profilepic', profilePicPath));
-    request.files
-        .add(await http.MultipartFile.fromPath('id_front', idFrontPath));
-    request.files.add(await http.MultipartFile.fromPath('id_back', idBackPath));
-
-    // Send request and wait for the response
-    var response = await request.send();
-
-    // Get response as string
-    if (response.statusCode == 201) {
-      print('User registered successfully');
-      var responseBody = await response.stream.bytesToString();
-      print(responseBody);
-    } else {
-      print('Failed to register user. Status code: ${response.statusCode}');
-    }
-  }
-
   // Logout function
   Future<void> logout() async {
     final pref = await SharedPreferences.getInstance();

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io'; // To handle File
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:io';
 
-class TopSectionProfile extends StatefulWidget {
+import '../providers/imagenotifier.dart';
+// Import your image provider
+
+class TopSectionProfile extends ConsumerWidget {
   const TopSectionProfile({
     super.key,
     required this.screenWidth,
@@ -13,33 +16,18 @@ class TopSectionProfile extends StatefulWidget {
   final double screenHeight;
 
   @override
-  _TopSectionProfileState createState() => _TopSectionProfileState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final imageState = ref.watch(imageProvider); // Listen to image state
+    final imageNotifier =
+        ref.read(imageProvider.notifier); // For updating images
 
-class _TopSectionProfileState extends State<TopSectionProfile> {
-  File? _image;
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
     return Container(
       height: screenHeight * 0.32,
       child: Stack(
         children: [
           Container(
-            width: widget.screenWidth,
-            height: widget.screenHeight * 0.25,
+            width: screenWidth,
+            height: screenHeight * 0.25,
             decoration: const BoxDecoration(
               color: Color(0xFF6D6BE7),
               borderRadius: BorderRadius.only(
@@ -77,12 +65,12 @@ class _TopSectionProfileState extends State<TopSectionProfile> {
           ),
           Positioned(
             top: 160,
-            left: 150,
+            left: (screenWidth - 100) / 2, // Center the image
             child: GestureDetector(
-              onTap: _pickImage,
+              onTap: () => imageNotifier.pickProfileImage(),
               child: Container(
-                width: 100, // Adjust the width
-                height: 100, // Adjust the height
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(4),
@@ -95,21 +83,21 @@ class _TopSectionProfileState extends State<TopSectionProfile> {
                     style: BorderStyle.solid,
                     color: Color(0xffEAEAFF),
                     width: 1.5,
-                  ), // Background color of the container
-                  image: _image != null
+                  ),
+                  image: imageState.profileImage != null
                       ? DecorationImage(
-                          image: FileImage(_image!),
+                          image: FileImage(File(imageState.profileImage!.path)),
                           fit: BoxFit.cover,
                         )
-                      : null, // Display the image if selected
+                      : null, // Display profile image if selected
                 ),
-                child: _image == null
+                child: imageState.profileImage == null
                     ? const Icon(
                         Icons.camera_alt_outlined,
                         color: Colors.grey,
                         size: 40,
                       )
-                    : null,
+                    : null, // If no image, display camera icon
               ),
             ),
           ),

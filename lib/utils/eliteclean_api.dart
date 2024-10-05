@@ -18,7 +18,7 @@ class EliteCleanApi {
   final String voicecalling = 'voicecalling';
   final String getHoroscope = 'horoscope';
   final String downloadHoroscope = 'pdffile/';
-  final String register = 'catId/';
+
   final String location = 'location';
   final String members = 'members';
   final String adds = 'adds';
