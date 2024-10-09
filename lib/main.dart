@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
                 future: ref.watch(authProvider.notifier).tryAutoLogin(),
                 builder: (context, snapshot) {
                   print(
-                      'Token after auto-login attempt: ${authState.data?.refreshToken}');
+                      'Token after auto-login attempt: ${authState.data?.accessToken}');
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(),

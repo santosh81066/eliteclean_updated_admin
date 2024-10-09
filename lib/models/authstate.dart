@@ -381,9 +381,9 @@ class Data {
         latitude = json['latitude'],
         longitude = json['longitude'],
         radius = json['radius'],
-        accessToken = json['access_token'] as String?,
+        accessToken = json['accessToken'] as String?,
         accessTokenExpiresAt = json['access_token_expires_at'] as int?,
-        refreshToken = json['refresh_token'] as String?,
+        refreshToken = json['refreshToken'] as String?,
         refreshTokenExpiresAt = json['refresh_token_expires_at'] as int?;
 
   // Method to convert Data object to JSON

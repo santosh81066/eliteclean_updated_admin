@@ -173,7 +173,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
 
     print("From tryAutoLogin: SharedPreferences contains user data.");
-
+    print(
+        "SharedPreferences updated with new token data: ${prefs.getString('userData')}");
     // Extract user data from shared preferences
     final extractedData =
         json.decode(prefs.getString('userData')!) as Map<String, dynamic>;
