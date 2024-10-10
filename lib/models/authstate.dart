@@ -184,7 +184,7 @@ class AuthState {
   final int? statusCode;
   final bool? success;
   final List<String>? messages;
-  final Data? data;
+  final AuthData? data;
 
   AuthState({
     this.statusCode,
@@ -208,7 +208,7 @@ class AuthState {
     int? statusCode,
     bool? success,
     List<String>? messages,
-    Data? data,
+    AuthData? data,
   }) {
     return AuthState(
       statusCode: statusCode ?? this.statusCode,
@@ -226,7 +226,7 @@ class AuthState {
             ?.map((dynamic e) => e as String)
             .toList(),
         data = (json['data'] as Map<String, dynamic>?) != null
-            ? Data.fromJson(json['data'] as Map<String, dynamic>)
+            ? AuthData.fromJson(json['data'] as Map<String, dynamic>)
             : null;
 
   // Method to convert AuthState object to JSON
@@ -238,7 +238,7 @@ class AuthState {
       };
 }
 
-class Data {
+class AuthData {
   final int? userId;
   final String? username;
   final dynamic countryname;
@@ -261,7 +261,7 @@ class Data {
   final String? refreshToken;
   final int? refreshTokenExpiresAt;
 
-  Data({
+  AuthData({
     this.userId,
     this.username,
     this.countryname,
@@ -286,8 +286,8 @@ class Data {
   });
 
   // Factory constructor for initial state
-  factory Data.initial() {
-    return Data(
+  factory AuthData.initial() {
+    return AuthData(
       userId: null,
       username: null,
       countryname: null,
@@ -313,7 +313,7 @@ class Data {
   }
 
   // copyWith method to create a copy with updated fields
-  Data copyWith({
+  AuthData copyWith({
     int? userId,
     String? username,
     dynamic countryname,
@@ -336,7 +336,7 @@ class Data {
     String? refreshToken,
     int? refreshTokenExpiresAt,
   }) {
-    return Data(
+    return AuthData(
       userId: userId ?? this.userId,
       username: username ?? this.username,
       countryname: countryname ?? this.countryname,
@@ -363,7 +363,7 @@ class Data {
   }
 
   // Factory constructor to create a Data object from JSON
-  Data.fromJson(Map<String, dynamic> json)
+  AuthData.fromJson(Map<String, dynamic> json)
       : userId = json['user_id'] as int?,
         username = json['username'] as String?,
         countryname = json['countryname'],

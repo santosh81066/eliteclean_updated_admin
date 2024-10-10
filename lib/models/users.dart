@@ -1,32 +1,68 @@
 class UserState {
+  final bool isLoading;
+  final String? error;
+  final List<Data> users;
+  final int statusCode;
+  final bool success;
+  final List<String> messages;
+  final List<Data> data;
+
   UserState({
+    this.isLoading = false,
+    this.error,
     required this.statusCode,
     required this.success,
     required this.messages,
     required this.data,
-  });
-
-  late final int statusCode;
-  late final bool success;
-  late final List<String> messages;
-  late final List<Data> data;
+    List<Data>? users,
+  }) : users = users ?? data;
 
   // Factory constructor for initial state
   factory UserState.initial() {
     return UserState(
-      statusCode: 0, // Initial value, adjust as necessary
-      success: false, // Default to false
-      messages: [], // Start with an empty message list
-      data: [], // Start with an empty user data list
+      isLoading: false,
+      statusCode: 0,
+      success: false,
+      messages: [],
+      data: [],
     );
   }
 
-  UserState.fromJson(Map<String, dynamic> json) {
-    statusCode = json['statusCode'];
-    success = json['success'];
-    messages = List.castFrom<dynamic, String>(json['messages']);
-    data = List.from(json['data']).map((e) => Data.fromJson(e)).toList();
+  // Loading state factory
+  factory UserState.loading() {
+    return UserState(
+      isLoading: true,
+      statusCode: 0,
+      success: false,
+      messages: [],
+      data: [],
+    );
   }
+
+  // Error state factory
+  factory UserState.error(String errorMessage) {
+    return UserState(
+      isLoading: false,
+      error: errorMessage,
+      statusCode: 0,
+      success: false,
+      messages: [],
+      data: [],
+    );
+  }
+
+  UserState.fromJson(Map<String, dynamic> json)
+      : statusCode = json['statusCode'],
+        success = json['success'],
+        messages = List.castFrom<dynamic, String>(json['messages']),
+        data = json['data'] != null
+            ? List.from(json['data']).map((e) => Data.fromJson(e)).toList()
+            : [],
+        isLoading = false,
+        error = null,
+        users = json['data'] != null
+            ? List.from(json['data']).map((e) => Data.fromJson(e)).toList()
+            : [];
 
   Map<String, dynamic> toJson() {
     final _data = <String, dynamic>{};
@@ -39,16 +75,21 @@ class UserState {
 
   // CopyWith method for UserState
   UserState copyWith({
+    bool? isLoading,
+    String? error,
     int? statusCode,
     bool? success,
     List<String>? messages,
     List<Data>? data,
   }) {
     return UserState(
+      isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
       statusCode: statusCode ?? this.statusCode,
       success: success ?? this.success,
       messages: messages ?? List.from(this.messages),
       data: data ?? List.from(this.data),
+      users: data ?? List.from(this.users),
     );
   }
 }
@@ -76,7 +117,7 @@ class Data {
     this.accessTokenExpiresAt,
     this.refreshToken,
     this.refreshTokenExpiresAt,
-    this.mobileno, // Added mobileno field
+    this.mobileno,
   });
 
   late final int userId;
@@ -85,22 +126,22 @@ class Data {
   late final String? state;
   late final String? city;
   late final String? address;
-  late final Null profilePic;
+  late final String? profilePic;
   late final String? useRole;
   late final String? idFront;
   late final String? idBack;
-  late final Null idCard;
-  late final Null bankaccountno;
+  late final String? idCard;
+  late final String? bankaccountno;
   late final String? bankname;
   late final String? ifsccode;
   late final String? latitude;
   late final String? longitude;
   late final int? radius;
-  late final Null accessToken;
-  late final Null accessTokenExpiresAt;
-  late final Null refreshToken;
-  late final Null refreshTokenExpiresAt;
-  late final String? mobileno; // Added mobileno field
+  late final String? accessToken;
+  late final String? accessTokenExpiresAt;
+  late final String? refreshToken;
+  late final String? refreshTokenExpiresAt;
+  late final String? mobileno;
 
   Data.fromJson(Map<String, dynamic> json) {
     userId = json['user_id'];
@@ -124,7 +165,7 @@ class Data {
     accessTokenExpiresAt = json['access_token_expires_at'];
     refreshToken = json['refresh_token'];
     refreshTokenExpiresAt = json['refresh_token_expires_at'];
-    mobileno = json['mobileno']; // Added mobileno field
+    mobileno = json['mobileno'];
   }
 
   Map<String, dynamic> toJson() {
@@ -150,7 +191,7 @@ class Data {
     _data['access_token_expires_at'] = accessTokenExpiresAt;
     _data['refresh_token'] = refreshToken;
     _data['refresh_token_expires_at'] = refreshTokenExpiresAt;
-    _data['mobileno'] = mobileno; // Added mobileno field
+    _data['mobileno'] = mobileno;
     return _data;
   }
 
@@ -162,22 +203,22 @@ class Data {
     String? state,
     String? city,
     String? address,
-    Null? profilePic,
+    String? profilePic,
     String? useRole,
     String? idFront,
     String? idBack,
-    Null? idCard,
-    Null? bankaccountno,
+    String? idCard,
+    String? bankaccountno,
     String? bankname,
     String? ifsccode,
     String? latitude,
     String? longitude,
     int? radius,
-    Null? accessToken,
-    Null? accessTokenExpiresAt,
-    Null? refreshToken,
-    Null? refreshTokenExpiresAt,
-    String? mobileno, // Added mobileno field in copyWith method
+    String? accessToken,
+    String? accessTokenExpiresAt,
+    String? refreshToken,
+    String? refreshTokenExpiresAt,
+    String? mobileno,
   }) {
     return Data(
       userId: userId ?? this.userId,
@@ -202,7 +243,7 @@ class Data {
       refreshToken: refreshToken ?? this.refreshToken,
       refreshTokenExpiresAt:
           refreshTokenExpiresAt ?? this.refreshTokenExpiresAt,
-      mobileno: mobileno ?? this.mobileno, // Handle mobileno in copyWith
+      mobileno: mobileno ?? this.mobileno,
     );
   }
 }
