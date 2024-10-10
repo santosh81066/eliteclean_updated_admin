@@ -1,6 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
-
+import 'package:eliteclean_admin/models/users.dart';
 import 'package:eliteclean_admin/providers/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,12 +8,13 @@ import 'package:image_picker/image_picker.dart';
 
 import '../utils/eliteclean_api.dart';
 
-class Users extends StateNotifier<String> {
-  Users() : super('');
+class Users extends StateNotifier<UserState> {
+  Users() : super(UserState.initial());
 
+  // POST request to register a user
   Future<void> registerUser({
     WidgetRef? ref,
-    required BuildContext context, // Add context for displaying alerts
+    required BuildContext context,
     required String mobileNo,
     required double latitude,
     required double longitude,
@@ -36,10 +36,12 @@ class Users extends StateNotifier<String> {
     try {
       loader.state = true;
       final url = '${EliteCleanApi().baseUrl}${EliteCleanApi().register}';
-      var request = http.MultipartRequest('POST', Uri.parse(url));
-      print("register url:$url");
+      print("Register URL: $url");
 
-      // Create the attributes object as JSON, just like in Postman
+      // Define the request correctly as http.MultipartRequest
+      var request = http.MultipartRequest('POST', Uri.parse(url));
+
+      // Create the attributes object as JSON
       Map<String, dynamic> attributes = {
         'mobileno': mobileNo,
         'location': {
@@ -79,27 +81,22 @@ class Users extends StateNotifier<String> {
 
       loader.state = false;
 
-      // Parse the response
       var parsedResponse = jsonDecode(responseBody);
 
-      // Check the response status
       if (response.statusCode == 201) {
-        // Extract the message from the response
         List<String> messages = List<String>.from(parsedResponse['messages']);
         String message = messages.join("\n");
 
-        // User registered successfully, show message
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text("Success"),
-              content: Text(message), // Display messages from response
+              content: Text(message),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context)
-                        .pushNamed('/home'); // Close the dialog
+                    Navigator.of(context).pushNamed('/home');
                   },
                   child: const Text("OK"),
                 ),
@@ -108,21 +105,19 @@ class Users extends StateNotifier<String> {
           },
         );
       } else {
-        // Extract error messages and display
         List<String> messages = List<String>.from(parsedResponse['messages']);
         String message = messages.join("\n");
 
-        // Handle failure, show message
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text("Error"),
-              content: Text(message), // Display error messages
+              content: Text(message),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
+                    Navigator.of(context).pop();
                   },
                   child: const Text("OK"),
                 ),
@@ -134,7 +129,6 @@ class Users extends StateNotifier<String> {
     } catch (e) {
       loader.state = false;
 
-      // Handle error with an alert dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -144,7 +138,177 @@ class Users extends StateNotifier<String> {
             actions: <Widget>[
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // GET request to fetch user details
+  Future<void> fetchUserDetails({
+    required WidgetRef ref,
+    required BuildContext context,
+  }) async {
+    var loader = ref.read(loadingProvider.notifier);
+    try {
+      loader.state = true;
+      final url = '${EliteCleanApi().baseUrl}${EliteCleanApi().login}';
+      print("Fetching user details from: $url");
+
+      // Send the GET request
+      final response = await http.get(Uri.parse(url));
+      var responseBody = jsonDecode(response.body);
+      print('User Details: $responseBody');
+      // Check if request was successful
+      if (response.statusCode == 200) {
+        loader.state = false;
+
+        // Display user details in a dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("User Details"),
+              content: Text('User Data: $responseBody'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        loader.state = false;
+        print('Failed to fetch user details: ${response.body}');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Error"),
+              content: const Text('Failed to fetch user details.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      loader.state = false;
+      print('Error fetching user details: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: Text('An error occurred: $e'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("OK"),
+              )
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // GET request to fetch users via login endpoint
+  Future<void> fetchUsers({
+    required WidgetRef ref,
+    required BuildContext context,
+  }) async {
+    var loader = ref.read(loadingProvider.notifier);
+    try {
+      loader.state = true;
+      final url = '${EliteCleanApi().baseUrl}${EliteCleanApi().login}';
+      print("Fetching users from: $url");
+
+      // Send the GET request
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 201) {
+        var responseBody = jsonDecode(response.body);
+        print('Users: $responseBody');
+        final newUserState = UserState.fromJson(responseBody);
+        state = state.copyWith(
+          statusCode: newUserState.statusCode,
+          success: newUserState.success,
+          messages: newUserState.messages,
+          data: newUserState.data, // Update with the list of Data objects
+        );
+        print("userDetails: ${state.data[0].userId}");
+        loader.state = false;
+
+        print('User Data: $responseBody');
+        // showDialog(
+        //   context: context,
+        //   builder: (BuildContext context) {
+        //     return AlertDialog(
+        //       title: const Text("Users"),
+        //       content: Text('User Data: $responseBody'),
+        //       actions: <Widget>[
+        //         TextButton(
+        //           onPressed: () {
+        //             Navigator.of(context).pop();
+        //           },
+        //           child: const Text("OK"),
+        //         ),
+        //       ],
+        //     );
+        //   },
+        // );
+      } else {
+        loader.state = false;
+        print('Failed to fetch users: ${response.body}');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Error"),
+              content: const Text('Failed to fetch users.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      loader.state = false;
+      print('Error fetching users: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: Text('An error occurred: $e'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
                 },
                 child: const Text("OK"),
               ),
@@ -156,6 +320,6 @@ class Users extends StateNotifier<String> {
   }
 }
 
-final usersProvider = StateNotifierProvider<Users, String>((ref) {
+final usersProvider = StateNotifierProvider<Users, UserState>((ref) {
   return Users();
 });

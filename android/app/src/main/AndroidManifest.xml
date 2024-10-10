@@ -2,6 +2,7 @@
 <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:enableOnBackInvokedCallback="true"
         android:label="eliteclean_admin"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
