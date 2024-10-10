@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
               if (authState.data?.refreshToken != null &&
                   authState.data!.refreshToken!.isNotEmpty) {
                 print('Refresh token exists: ${authState.data?.refreshToken}');
-                return const Home(); // User is authenticated, redirect to Home
+                return Home(); // User is authenticated, redirect to Home
               } else {
                 print('No valid refresh token, trying auto-login');
               }
