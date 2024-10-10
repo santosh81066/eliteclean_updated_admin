@@ -33,7 +33,6 @@ class _UserScreenState extends ConsumerState<UserScreen> {
       length: 3,
       child: Scaffold(
         key: _scaffoldKey, // Assign the GlobalKey to Scaffold
-        // Drawer widget
         // Floating Action Button
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -47,7 +46,6 @@ class _UserScreenState extends ConsumerState<UserScreen> {
             color: Colors.white,
           ), // Customize button color
         ),
-
         // Main Body
         body: Column(
           children: [
@@ -79,26 +77,114 @@ class _UserScreenState extends ConsumerState<UserScreen> {
                       final user = allUsers[index];
 
                       return Card(
+                        color: const Color(0xffF5F5F5),
                         margin: const EdgeInsets.symmetric(
                             vertical: 8, horizontal: 16),
-                        elevation: 4,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(2),
+                            topRight: Radius.circular(50),
+                            bottomLeft: Radius.circular(50),
+                            bottomRight: Radius.circular(50),
+                          ),
+                        ),
+                        elevation: 0,
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: Column(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'User ID: ${user.userId}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
+                              // Grey Container on the top left
+                              Container(
+                                height: 60,
+                                width: 60,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300], // Light grey color
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(2),
+                                    topRight: Radius.circular(50),
+                                    bottomLeft: Radius.circular(50),
+                                    bottomRight: Radius.circular(50),
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.person,
+                                  color: Colors.grey,
+                                ),
                               ),
-                              Text(
-                                'Username: ${user.username ?? 'N/A'}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              Text(
-                                'Role: ${user.useRole}',
-                                style: const TextStyle(fontSize: 16),
+                              const SizedBox(width: 25),
+
+                              // Main content of the card
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // User name
+                                  const Text(
+                                    'User ID',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: Color(0xFF1E116B), // Dark blue
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.userId}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+
+                                  // House info
+                                  const Text(
+                                    'Username',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Color(0xFF1E116B), // Dark blue
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.username ?? 'N/A'}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+
+                                  // Timing info
+                                  const Text(
+                                    'Mobile no.',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Color(0xFF1E116B), // Dark blue
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.username ?? 'N/A'}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+
+                                  // Cleaner name
+                                  const Text(
+                                    'Role',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Color(0xFF1E116B), // Dark blue
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.useRole}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -106,7 +192,6 @@ class _UserScreenState extends ConsumerState<UserScreen> {
                       );
                     },
                   ),
-
                   // Tab 2: Supervisor users
                   ListView.builder(
                     itemCount: supervisorUsers.length,
@@ -114,26 +199,110 @@ class _UserScreenState extends ConsumerState<UserScreen> {
                       final user = supervisorUsers[index];
 
                       return Card(
+                        color: const Color(0xffF5F5F5),
                         margin: const EdgeInsets.symmetric(
                             vertical: 8, horizontal: 16),
-                        elevation: 4,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(2),
+                            topRight: Radius.circular(50),
+                            bottomLeft: Radius.circular(50),
+                            bottomRight: Radius.circular(50),
+                          ),
+                        ),
+                        elevation: 0,
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: Column(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'User ID: ${user.userId}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
+                              // Grey Container on the top left
+                              Container(
+                                height: 60,
+                                width: 60,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300], // Light grey color
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(2),
+                                    topRight: Radius.circular(50),
+                                    bottomLeft: Radius.circular(50),
+                                    bottomRight: Radius.circular(50),
+                                  ),
+                                ),
                               ),
-                              Text(
-                                'Username: ${user.username ?? 'N/A'}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              Text(
-                                'Role: ${user.useRole}',
-                                style: const TextStyle(fontSize: 16),
+                              const SizedBox(width: 25),
+
+                              // Main content of the card
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // User name
+                                  const Text(
+                                    'User ID',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: Color(0xFF1E116B), // Dark blue
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.userId}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+
+                                  // House info
+                                  const Text(
+                                    'Username',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Color(0xFF1E116B), // Dark blue
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.username ?? 'N/A'}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+
+                                  // Timing info
+                                  const Text(
+                                    'Mobile no.',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Color(0xFF1E116B), // Dark blue
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.username ?? 'N/A'}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+
+                                  // Cleaner name
+                                  const Text(
+                                    'Role',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Color(0xFF1E116B), // Dark blue
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.useRole}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -149,26 +318,110 @@ class _UserScreenState extends ConsumerState<UserScreen> {
                       final user = cleanerUsers[index];
 
                       return Card(
+                        color: const Color(0xffF5F5F5),
                         margin: const EdgeInsets.symmetric(
                             vertical: 8, horizontal: 16),
-                        elevation: 4,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(2),
+                            topRight: Radius.circular(50),
+                            bottomLeft: Radius.circular(50),
+                            bottomRight: Radius.circular(50),
+                          ),
+                        ),
+                        elevation: 0,
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: Column(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'User ID: ${user.userId}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
+                              // Grey Container on the top left
+                              Container(
+                                height: 60,
+                                width: 60,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300], // Light grey color
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(2),
+                                    topRight: Radius.circular(50),
+                                    bottomLeft: Radius.circular(50),
+                                    bottomRight: Radius.circular(50),
+                                  ),
+                                ),
                               ),
-                              Text(
-                                'Username: ${user.username ?? 'N/A'}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              Text(
-                                'Role: ${user.useRole}',
-                                style: const TextStyle(fontSize: 16),
+                              const SizedBox(width: 25),
+
+                              // Main content of the card
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // User name
+                                  const Text(
+                                    'User ID',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: Color(0xFF1E116B), // Dark blue
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.userId}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+
+                                  // House info
+                                  const Text(
+                                    'Username',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Color(0xFF1E116B), // Dark blue
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.username ?? 'N/A'}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+
+                                  // Timing info
+                                  const Text(
+                                    'Mobile no.',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Color(0xFF1E116B), // Dark blue
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.username ?? 'N/A'}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+
+                                  // Cleaner name
+                                  const Text(
+                                    'Role',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Color(0xFF1E116B), // Dark blue
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.useRole}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

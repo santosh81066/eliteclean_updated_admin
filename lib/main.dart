@@ -15,7 +15,7 @@ import 'supervisor_screens/holiday_applications.dart';
 import 'supervisor_screens/home_supervisor.dart';
 
 void main() {
-  runApp(ProviderScope(child: const MyApp()));
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
               if (authState.data?.refreshToken != null &&
                   authState.data!.refreshToken!.isNotEmpty) {
                 print('Refresh token exists: ${authState.data?.refreshToken}');
-                return Home(); // User is authenticated, redirect to Home
+                return const Home(); // User is authenticated, redirect to Home
               } else {
                 print('No valid refresh token, trying auto-login');
               }
@@ -61,10 +61,10 @@ class MyApp extends StatelessWidget {
                       snapshot.data == true &&
                       authState.data?.refreshToken != null) {
                     // If auto-login is successful and refresh token is available, go to Home
-                    return Home();
+                    return const Home();
                   } else {
                     // If auto-login fails, redirect to login page
-                    return Login();
+                    return const Login();
                   }
                 },
               );

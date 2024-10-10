@@ -76,6 +76,7 @@ class Data {
     this.accessTokenExpiresAt,
     this.refreshToken,
     this.refreshTokenExpiresAt,
+    this.mobileno, // Added mobileno field
   });
 
   late final int userId;
@@ -99,6 +100,7 @@ class Data {
   late final Null accessTokenExpiresAt;
   late final Null refreshToken;
   late final Null refreshTokenExpiresAt;
+  late final String? mobileno; // Added mobileno field
 
   Data.fromJson(Map<String, dynamic> json) {
     userId = json['user_id'];
@@ -122,6 +124,7 @@ class Data {
     accessTokenExpiresAt = json['access_token_expires_at'];
     refreshToken = json['refresh_token'];
     refreshTokenExpiresAt = json['refresh_token_expires_at'];
+    mobileno = json['mobileno']; // Added mobileno field
   }
 
   Map<String, dynamic> toJson() {
@@ -147,6 +150,7 @@ class Data {
     _data['access_token_expires_at'] = accessTokenExpiresAt;
     _data['refresh_token'] = refreshToken;
     _data['refresh_token_expires_at'] = refreshTokenExpiresAt;
+    _data['mobileno'] = mobileno; // Added mobileno field
     return _data;
   }
 
@@ -173,6 +177,7 @@ class Data {
     Null? accessTokenExpiresAt,
     Null? refreshToken,
     Null? refreshTokenExpiresAt,
+    String? mobileno, // Added mobileno field in copyWith method
   }) {
     return Data(
       userId: userId ?? this.userId,
@@ -197,6 +202,7 @@ class Data {
       refreshToken: refreshToken ?? this.refreshToken,
       refreshTokenExpiresAt:
           refreshTokenExpiresAt ?? this.refreshTokenExpiresAt,
+      mobileno: mobileno ?? this.mobileno, // Handle mobileno in copyWith
     );
   }
 }
