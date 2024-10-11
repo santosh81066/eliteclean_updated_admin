@@ -32,8 +32,7 @@ class Users extends StateNotifier<UserState> {
     required XFile idFront,
     required XFile idBack,
   }) async {
-    var loader = ref.read(loadingProvider.notifier);
-    loader.state = true;
+    var loader = ref!.read(loadingProvider.notifier);
     try {
       final url = '${EliteCleanApi().baseUrl}${EliteCleanApi().register}';
       print("Register URL: $url");
@@ -54,7 +53,7 @@ class Users extends StateNotifier<UserState> {
         'bankaccountno': bankAccountNo,
         'bankname': bankName,
         'ifsccode': ifscCode,
-        'radius': radius,
+        'radius': radius == "" ? null : radius,
       };
 
       request.fields['attributes'] = jsonEncode(attributes);
