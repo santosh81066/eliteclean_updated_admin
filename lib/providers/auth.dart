@@ -180,7 +180,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         json.decode(prefs.getString('userData')!) as Map<String, dynamic>;
 
     // Extract individual data fields from the saved data
-    final newUser = AuthData.fromJson(extractedData);
+    final newUser = Data.fromJson(extractedData);
 
     // Update the AuthState with new data using copyWith
     state = state.copyWith(
